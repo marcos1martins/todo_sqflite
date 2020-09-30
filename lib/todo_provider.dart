@@ -23,16 +23,17 @@ class TodoProvider {
     return _db;
   }
 
-  organizeByDone(List<Todo> disorganizedList) {
-    return disorganizedList.sort((a, b) {
+  List<Todo> organizeByDone(List<Todo> list) {
+    list.sort((a, b) {
       if (a.done == b.done) {
         return 0;
       }
       if (a.done == false && b.done == true) {
-        return 1;
+        return -1;
       }
-      return -1;
+      return 1;
     });
+    return list;
   }
 
   Future<List<Todo>> getAll() async {

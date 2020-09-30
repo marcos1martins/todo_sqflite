@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:sqflite_testes/show_alert.dart';
+import 'package:sqflite_testes/todo_form.dart';
 import 'package:sqflite_testes/todo_provider.dart';
 
 import 'todo.dart';
@@ -16,6 +18,7 @@ class MyApp extends StatelessWidget {
         primarySwatch: Colors.blue,
         visualDensity: VisualDensity.adaptivePlatformDensity,
       ),
+      routes: {'/form': (context) => TodoForm()},
       home: MyHomePage(title: 'TODO LIST'),
     );
   }
@@ -31,12 +34,17 @@ class MyHomePage extends StatefulWidget {
 
 class _MyHomePageState extends State<MyHomePage> {
   final provider = TodoProvider();
-  List<Todo> allTodo = [];
+  List<Todo> allTodo;
 
   @override
   void initState() {
-    provider.getAll().then((value) => allTodo = value);
     super.initState();
+    getAllTodo();
+  }
+
+  void getAllTodo() async {
+    allTodo = await provider.getAll();
+    setState(() {});
   }
 
   @override
@@ -52,19 +60,38 @@ class _MyHomePageState extends State<MyHomePage> {
         title: Text(widget.title),
       ),
       body: ListView.builder(
-        itemCount: allTodo.length ?? 0,
+        itemCount: allTodo == null ? 0 : allTodo.length,
         itemBuilder: (context, index) {
-          return CheckboxListTile(
-            title: Text(allTodo[index].title),
-            value: allTodo[index].done,
-            onChanged: (done) {
-              allTodo[index].done = done;
-              setState(() {
-                provider.update(allTodo[index]);
-              });
+          return GestureDetector(
+            onLongPress: () {
+              showAlertDialog(context, allTodo[index].id, provider)
+                  .then((value) => value ? getAllTodo() : null);
             },
+            child: CheckboxListTile(
+              title: Text(allTodo[index].title),
+              value: allTodo[index].done,
+              onChanged: (done) {
+                allTodo[index].done = done;
+                provider.update(allTodo[index]);
+                getAllTodo();
+              },
+            ),
           );
         },
+      ),
+      floatingActionButton: FloatingActionButton(
+        onPressed: () async {
+          final bool recarregar = await Navigator.push(
+            context,
+            MaterialPageRoute(
+              builder: (context) => TodoForm(),
+            ),
+          );
+          if (recarregar) {
+            getAllTodo();
+          }
+        },
+        child: Icon(Icons.add),
       ),
     );
   }
