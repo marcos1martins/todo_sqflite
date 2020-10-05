@@ -15,7 +15,12 @@ class MyApp extends StatelessWidget {
     return MaterialApp(
       title: 'Flutter Demo',
       theme: ThemeData(
-        primarySwatch: Colors.blue,
+        primaryColor: Colors.black,
+        bottomAppBarTheme:
+            BottomAppBarTheme(color: Colors.black, elevation: 20),
+        appBarTheme: AppBarTheme(elevation: 20),
+        floatingActionButtonTheme: FloatingActionButtonThemeData(
+            backgroundColor: Colors.black, elevation: 20),
         visualDensity: VisualDensity.adaptivePlatformDensity,
       ),
       routes: {'/form': (context) => TodoForm()},
